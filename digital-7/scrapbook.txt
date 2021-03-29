@@ -1,0 +1,5 @@
+// function hideSlider2() {
+//     document.getElementById('myRange2').style.display = 'none';
+//     document.getElementById('slider2holder').style.display = 'none';
+//     document.getElementById('millisecondsDiv').style.display = 'nonex';
+// }

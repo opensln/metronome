@@ -1,35 +1,277 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
+
+<html>
+  <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Metronome</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="title">Simple Metronome</div>
-    <button id="play-button" class="">
-        <div id="play-pause-icon" class="play"></div>
-    </button>
+    <meta property="og:image" content="./images/metronome-og.jpg"/>
+    <link rel="stylesheet" href="" />
+    <script src=""></script>
+    <link rel="icon" href="./images/favicon.png" type="image/png">
+    <title>Metronome using Audio Context</title>
+  </head>
+  <style>
+/* define the font */
+  @font-face {
+  font-family: 'digital-7' ;
+  src: url('./digital-7/digital-7.ttf');
+}
 
-    <div class="tempo-controls">
-        <button class="tempo-change" data-change="-5">-5</button>
-        <button class="tempo-change" data-change="-1">-</button>
+  body {
+  margin: 0;
+  font-family: digital-7;
+}
 
-        <div class="tempo-container">
-            <div id="tempo">120</div>
-            <div class="bpm">bpm</div>
-        </div>
+  input {
+  font-family: digital-7;
+  font-size: 2rem;
+  text-align: center;
+}
 
-        <button class="tempo-change" data-change="+1">+</button>
-        <button class="tempo-change" data-change="+5">+5</button>
+/* Chrome, Safari, Edge, Opera */
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+} 
+
+/* Firefox */
+  input[type=number] {
+  -moz-appearance: textfield;
+} 
+
+   #myRange1 {
+    -webkit-appearance: none;
+    width: 200px;
+    height: 15px;
+    border-radius: 5px;
+    background: #ea9700;
+}
+
+  #bpmInput1 {
+    width: 50px;
+    background: #ea9700;
+    color: rgb(255, 255, 255);
+}
+
+  #myRange2 {
+    display:none;
+    -webkit-appearance: none;
+    width: 200px;
+    height: 15px;
+    border-radius: 5px;
+    background: green;
+}
+
+#slider2holder {
+  display:none;
+}
+
+  #bpmInput2 {
+    width: 50px;
+    background: green;
+    color: white;
+}
+
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-image: linear-gradient(225deg , black, white, black);
+    cursor: pointer;
+}
+
+  .slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-image: linear-gradient(225deg , black, white, black);
+    cursor: pointer;
+}
+
+  #mainContainer {
+    width: 300px;
+    min-width: 300px;
+    height: 300px;
+    border: solid 5px grey;
+    border-radius: 50%;
+    text-align: center;
+    margin: 0 auto 0 auto;
+    background-image: linear-gradient(225deg , black, white, black);
+ }
+
+  .flash {
+    background-color: #ececec;
+}
+
+  #mainContainer input {
+    margin: 0 auto 0 auto;
+}
+
+  .valspan {
+    display: none;
+}
+
+  #pageContainer {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    background-image: linear-gradient(225deg , black, white, black);
+}
+
+  #titleText {
+    font-family: digital-7;
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+/*--media Queries--*/
+
+@media  screen and (min-width : 768px) {
+    #mainContainer {
+    width: 600px;
+    height: 600px;
+  }
+
+  #titleText {
+    font-size: 4rem;
+    margin-top: 130px;
+  }
+
+  input {
+    font-size: 4rem;
+  }
+
+  #myRange1 {
+    width: 400px;
+  }
+
+  #bpmInput1 {
+    width: 100px;
+  }
+
+  #myRange2 {
+    width: 400px;
+  }
+
+  #bpmInput2 {
+    width: 100px;
+  }
+
+  #startBtn, #stopBtn {
+    font-size: 2rem;
+  }
+
+
+}
+
+  </style>
+
+  <body>
+    <section id="pageContainer">
+    <div id="mainContainer">
+      <br />
+      <br />
+      <h1 id="titleText">METRONOME</h1>
+
+      <!--Sliders & Input Section-->
+      <input type="range" class="slider" min="40" max="240" value="120" id="myRange1" oninput="setBpmNoTrigger(this.value)" />
+
+      <p id="slider1holder">
+        <span class="valspan" Value1:></span>
+        <input id="bpmInput1"  type="number"  value="120" onchange="setBpmNoTrigger(this.value)" />
+        <!-- <span> bpm</span> -->
+      </p>
+
+      <input type="range" class="slider" min="40" max="240" value="120" id="myRange2" oninput="setBpmWithTrigger(this.value)" />
+
+      <p id="slider2holder">
+       <span class="valspan" Value2:></span> 
+        <input id="bpmInput2"  type="number"  value="120" onchange="setBpmWithTrigger(this.value)" >
+        <!-- <span> bpm</span> -->
+      </p>
+      <!--End Sliders & Input Section-->
+
+      <p id="millisecondsDiv" style="display: none;">500</p>
+      <span></span><br />
+
+
+      <button id="startBtn" type="button" onclick="startMetro()">START</button>
+      <button id="stopBtn" type="button" onclick="stopMetro()">STOP</button>
+
+      <p id="logDiv"></p>
+      <p id="soundDiv"></p>
     </div>
+</section>
+<script src="./metronome.js"></script>
+<script>
 
-    <div class="created-by">
-        Created by <a href="https://grantjam.es" target="_blank">Grant James</a>
-    </div>
+var metro = new Metronome();
 
-    <script src="metronome.js"></script>
-    <script src="app.js"></script>
-</body>
+var bpmInput1 = document.getElementById('bpmInput1');
+var slider1 = document.getElementById('myRange1');
+
+var bpmInput2 = document.getElementById('bpmInput2');
+var slider2 = document.getElementById('myRange2');
+
+function setBpmNoTrigger(bpm) {
+
+   bpmInput1.value = bpm;
+   slider1.value = bpmInput1.value;
+   slider2.value = bpmInput1.value;
+   bpmInput2.value = bpmInput1.value;
+
+   let beatLength = (60 / bpm);
+   document.getElementById('millisecondsDiv').innerText = beatLength;
+   metro.tempo = bpm;
+   //console.log(metro.tempo);
+}
+
+function setBpmWithTrigger(bpm) {
+
+   bpmInput2.value = bpm;
+   slider1.value = bpmInput2.value;
+   slider2.value = bpmInput2.value;
+   bpmInput1.value = bpmInput2.value;
+
+   let beatLength = (60 / bpm);
+   document.getElementById('millisecondsDiv').innerText = beatLength;
+   metro.tempo = bpm;
+}
+
+let startCounter = 0;
+
+function startMetro() {
+   
+    startCounter ++;
+
+    if(startCounter >0) {
+    startBtn = document.getElementById('startBtn').disabled = true;
+    }
+
+    document.getElementById('myRange1').style.display = 'none';
+    document.getElementById('slider1holder').style.display = 'none';
+
+    document.getElementById('myRange2').style.display = 'block';
+    document.getElementById('slider2holder').style.display = 'block';
+
+    metro.start();
+}
+
+function stopMetro() {
+    startcounter = 0;
+    startBtn = document.getElementById('startBtn').disabled = false;
+
+    document.getElementById('myRange1').style.display = 'block';
+    document.getElementById('slider1holder').style.display = 'block';
+
+    document.getElementById('myRange2').style.display = 'none';
+    document.getElementById('slider2holder').style.display = 'none';
+
+    metro.stop();
+}
+</script>
+
+  </body>
 </html>
